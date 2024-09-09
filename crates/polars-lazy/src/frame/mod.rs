@@ -654,6 +654,8 @@ impl LazyFrame {
         let mut scratch = vec![];
         let lp_top =
             self.optimize_with_scratch(&mut lp_arena, &mut expr_arena, &mut scratch, false)?;
+        println!("{:?}", lp_top);
+        println!("{:?}", expr_arena);
 
         post_opt(lp_top, &mut lp_arena, &mut expr_arena)?;
 

@@ -272,3 +272,40 @@ fn test_group_by_on_lists() -> PolarsResult<()> {
 
     Ok(())
 }
+
+#[cfg(feature = "cross_join")]
+#[test]
+fn test_cross_join_cartestian_product() -> PolarsResult<()> {
+    let mut lazy_frame = df! {
+        "u32" => &[0u32, 1],
+        "str" => &["a", "b"],
+    }
+    .unwrap()
+    .lazy();
+    lazy_frame = lazy_frame
+        .clone()
+        .select([as_struct(vec![col("u32"), col("str")]).alias("1")])
+        .cross_join(
+            lazy_frame
+                .clone()
+                .select([as_struct(vec![col("u32"), col("str")]).alias("2")]),
+            None,
+        )
+        .cross_join(
+            lazy_frame.select([as_struct(vec![col("u32"), col("str")]).alias("3")]),
+            None,
+        );
+    println!(
+        "cross_join cartesian product data_frame: {}",
+        lazy_frame.clone().collect().unwrap()
+    );
+    // AFTER THIS LINE ERROR
+    lazy_frame = lazy_frame.select([concat_list(["1","2"]).unwrap().alias("LIST")]);
+    // println!("{:?}", lazy_frame);
+    println!(
+        "cross_join cartesian product concat_list data_frame: {}",
+        lazy_frame.clone().collect().unwrap()
+    );
+
+    Ok(())
+}
